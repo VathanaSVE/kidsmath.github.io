@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>1st Grade Math — Addition & Subtraction</title>
+  <style>
+    body {font-family: Inter, sans-serif; background: #f7fbff; color: #123; padding: 20px;}
+    .container {max-width: 700px; margin: auto; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
+    h1 {text-align: center;}
+    button {background: #4aa3ff; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: bold;}
+    button:hover {background: #388fe6;}
+    .problem-row {display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; font-size: 1.6rem;}
+    input[type="number"] {width: 80px; text-align: center; font-size: 1.2rem; padding: 4px;}
+    .hidden {display: none;}
+    .center {text-align: center; margin-top: 16px;}
+    table {width: 100%; border-collapse: collapse; margin-top: 10px;}
+    th, td {border-bottom: 1px solid #eee; padding: 6px; text-align: center;}
+    .correct {color: green; font-weight: bold;}
+    .wrong {color: red; font-weight: bold;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>1st Grade Math — Addition & Subtraction</h1>
+    <p style="text-align:center">Solve each problem below. Only numbers 0–9 are used. Click <strong>Start</strong> to begin, then <strong>Submit</strong> when you finish.</p>
+
+    <div class="center">
+      <button id="startBtn">Start</button>
+    </div>
+
+    <form id="exerciseForm" class="hidden">
+      <div id="problems"></div>
+      <div class="center">
+        <button type="submit">Submit Answers</button>
+      </div>
+    </form>
+
+    <div id="results" class="hidden"></div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const form = document.getElementById('exerciseForm');
+    const problemsDiv = document.getElementById('problems');
+    const resultsDiv = document.getElementById('results');
+
+    function randInt(min, max) {return Math.floor(Math.random() * (max - min + 1)) + min;}
+
+    function generateProblem() {
+      const op = Math.random() < 0.5 ? '+' : '-';
+      if (op === '+') {
+        const a = randInt(0, 9);
+        const b = randInt(0, 9 - a); // keep total <= 9
+        return {a, b, op, answer: a + b};
+      } else {
+        const a = randInt(0, 9);
+        const b = randInt(0, a); // avoid negative
+        return {a, b, op, answer: a - b};
+      }
+    }
+
+    function startExercise() {
+      problemsDiv.innerHTML = '';
+      resultsDiv.classList.add('hidden');
+      const numProblems = randInt(5, 10); // random 5–10 problems
+      for (let i = 0; i < numProblems; i++) {
+        const p = generateProblem();
+        const row = document.createElement('div');
+        row.className = 'problem-row';
+        row.innerHTML = `${p.a} ${p.op} ${p.b} = <input type="number" min="0" max="9" name="ans${i}" data-answer="${p.answer}" />`;
+        problemsDiv.appendChild(row);
+      }
+      form.classList.remove('hidden');
+      startBtn.classList.add('hidden');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputs = form.querySelectorAll('input');
+      let correct = 0;
+      let total = inputs.length;
+      let table = '<table><tr><th>Problem</th><th>Correct Answer</th><th>Your Answer</th><th>Result</th></tr>';
+      inputs.forEach((input, i) => {
+        const val = input.value === '' ? null : Number(input.value);
+        const ans = Number(input.dataset.answer);
+        const problemText = input.parentElement.textContent.replace('=', '').trim();
+        const ok = val === ans;
+        if (ok) correct++;
+        table += `<tr><td>${problemText}</td><td>${ans}</td><td>${val === null ? '–' : val}</td><td class="${ok ? 'correct' : 'wrong'}">${ok ? '✓' : '✗'}</td></tr>`;
+      });
+      table += '</table>';
+      resultsDiv.innerHTML = `<div class="center"><h2>You got ${correct} / ${total} correct!</h2>${table}<div class="center" style="margin-top:10px"><button onclick="location.reload()">Try Again</button></div></div>`;
+      resultsDiv.classList.remove('hidden');
+      form.classList.add('hidden');
+    });
+
+    startBtn.onclick = startExercise;
+  </script>
+</body>
+</html>
