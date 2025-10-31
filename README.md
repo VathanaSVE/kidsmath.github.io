@@ -1,2 +1,2 @@
 # kidsmath.github.io
-Addition for kids!
+Addition & Subtraction for kids!
